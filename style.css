@@ -1,0 +1,87 @@
+/* Base Styles */
+body { 
+    background-color: #0a0a0a; 
+    color: #fcfcfc; 
+    overflow-x: hidden; 
+}
+
+/* Preloader & Cover Overlay */
+#cover-screen {
+    transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1), opacity 1s ease;
+}
+
+.cover-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Zoom Art Image Wrappers */
+.zoom-img-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+
+.zoom-img {
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+.zoom-img-wrapper:hover .zoom-img {
+    transform: scale(1.05);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { 
+    width: 8px; 
+}
+
+::-webkit-scrollbar-track { 
+    background: #0a0a0a; 
+}
+
+::-webkit-scrollbar-thumb { 
+    background: #333; 
+    border-radius: 4px; 
+}
+
+::-webkit-scrollbar-thumb:hover { 
+    background: #555; 
+}
+
+/* Form Container Scrollbar adjustment */
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #fcfcfc;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+}
+
+/* Floating Audio Button */
+.audio-btn {
+    animation: spin 4s linear infinite;
+}
+
+.audio-paused {
+    animation-play-state: paused;
+}
+
+@keyframes spin { 
+    100% { transform: rotate(360deg); } 
+}
+
+/* Form submission slide animation */
+.slide-down {
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
