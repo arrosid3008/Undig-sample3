@@ -1,152 +1,321 @@
+// --- CONFIGURASI DATA ---
+const CONFIG = {
+    eventTitle: "Pernikahan Arrosid & Zumrotus",
+    eventStartUTC: "20260405T010000Z", // Jam 08:00 WIB
+    eventEndUTC: "20260405T060000Z",   // Jam 13:00 WIB
+    eventLocation: "GOR Jatimekar, Bandung",
+    eventDesc: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir."
+};
+
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Pastikan GSAP terdaftar dengan benar
-    if (typeof gsap !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-    } else {
-        console.error("GSAP tidak ditemukan. Pastikan koneksi internet stabil.");
-    }
 
-    // 2. Elemen Selector
-    const coverScreen = document.getElementById('cover-screen');
-    const btnOpen = document.getElementById('btn-open-invitation');
-    const bgMusic = document.getElementById('bg-music');
-    const audioControl = document.getElementById('audio-control');
-    const audioIcon = document.getElementById('audio-icon');
-
-    // Pastikan body terkunci di awal
-    document.body.style.overflow = 'hidden';
-
-    // 3. Logika Buka Undangan & Audio BGM
-    let isPlaying = false;
-
-    if (btnOpen && coverScreen) {
-        btnOpen.addEventListener('click', () => {
-            coverScreen.classList.add('cover-hidden');
-            document.body.style.overflow = 'auto';
-            
-            // Play Audio
-            if (bgMusic) {
-                bgMusic.play().then(() => {
-                    isPlaying = true;
-                    audioControl?.classList.remove('hidden');
-                    audioControl?.classList.remove('audio-paused');
-                }).catch(err => console.log("Autoplay dicegah browser:", err));
-            }
-
-            // Animasi Hero setelah dibuka
-            gsap.fromTo('.gsap-hero-text', 
-                { y: 50, opacity: 0 }, 
-                { y: 0, opacity: 1, duration: 1.2, stagger: 0.2, ease: 'power3.out', delay: 0.5 }
-            );
-        });
-    }
-
-    // Toggle Play/Pause Musik saat tombol BGM diklik
-    if(audioControl && bgMusic) {
-        audioControl.addEventListener('click', () => {
-            if(isPlaying) {
-                bgMusic.pause();
-                audioControl.classList.add('audio-paused');
-            } else {
-                bgMusic.play();
-                audioControl.classList.remove('audio-paused');
-            }
-            isPlaying = !isPlaying;
-        });
-    }
-
-    // 4. Countdown Timer
-    const targetDate = new Date("April 5, 2026 08:00:00").getTime();
+    // 1. THEME TOGGLE (Dark / Light Mode)
+    const themeBtn = document.getElementById('theme-toggle');
+    const body = document.body;
     
-    const updateCountdown = () => {
-        const now = new Date().getTime();
-        const diff = targetDate - now;
-
-        if (diff > 0) {
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-            if(document.getElementById("days")) document.getElementById("days").innerText = days.toString().padStart(2, '0');
-            if(document.getElementById("hours")) document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
-            if(document.getElementById("mins")) document.getElementById("mins").innerText = mins.toString().padStart(2, '0');
-            if(document.getElementById("secs")) document.getElementById("secs").innerText = secs.toString().padStart(2, '0');
+    themeBtn.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const icon = themeBtn.querySelector('i');
+        if (body.classList.contains('dark-mode')) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
         }
-    };
-    setInterval(updateCountdown, 1000);
+    });
 
-    // 5. Animasi Scroll (GSAP)
-    // Efek Parallax background hero
-    if(document.querySelector(".hero-bg")) {
-        gsap.to(".hero-bg", {
-            yPercent: 20,
-            ease: "none",
-            scrollTrigger: {
-                trigger: "section",
-                scrub: true
+    // 2. BUKA UNDANGAN & MUSIC CONTROL
+    const btnOpen = document.getElementById('btn-open');
+    const openingScreen = document.getElementById('opening-screen');
+    const mainContent = document.getElementById('main-content');
+    const bottomNav = document.getElementById('bottom-nav');
+    const bgMusic = document.getElementById('bg-music');
+    const musicBtn = document.getElementById('music-control');
+    let isPlaying = false;
+    let wasMusicPlayingBeforeVideo = false; // Flag untuk menyimpan status musik sebelum video diputar
+
+    // Fungsi Toggle Musik
+    const toggleMusic = () => {
+        if (isPlaying) {
+            bgMusic.pause();
+            musicBtn.classList.remove('playing');
+        } else {
+            bgMusic.play().catch(e => console.log("Autoplay dicegah browser", e));
+            musicBtn.classList.add('playing');
+        }
+        isPlaying = !isPlaying;
+    };
+
+    musicBtn.addEventListener('click', toggleMusic);
+
+    btnOpen.addEventListener('click', () => {
+        // Animasi Cover
+        openingScreen.classList.add('slide-up');
+        
+        // Tampilkan konten dan Tombol Musik
+        setTimeout(() => {
+            openingScreen.style.display = 'none';
+            mainContent.classList.remove('hidden');
+            bottomNav.classList.remove('hidden');
+            musicBtn.classList.remove('hidden');
+            
+            // Inisiasi efek bunga jatuh setelah undangan dibuka
+            initParticles();
+        }, 800);
+
+        // Play Music Pertama Kali
+        if (!isPlaying) toggleMusic();
+    });
+
+    // 2.1 INTERAKSI VIDEO & AUDIO STORY
+    const storyVideo = document.getElementById('story-video');
+
+    if(storyVideo) {
+        // Saat video dimainkan
+        storyVideo.addEventListener('play', () => {
+            if (isPlaying) {
+                wasMusicPlayingBeforeVideo = true; // Ingat bahwa musik tadi menyala
+                bgMusic.pause(); // Pause musik latar
+                musicBtn.classList.remove('playing'); // Matikan animasi piringan berputar
+                isPlaying = false;
+            } else {
+                wasMusicPlayingBeforeVideo = false;
+            }
+        });
+
+        // Saat video di-pause oleh user
+        storyVideo.addEventListener('pause', () => {
+            // Jika musik tadi menyala sebelum video diputar, nyalakan kembali
+            if (wasMusicPlayingBeforeVideo && !isPlaying) {
+                bgMusic.play();
+                musicBtn.classList.add('playing');
+                isPlaying = true;
+            }
+        });
+
+        // Saat video selesai diputar sampai akhir
+        storyVideo.addEventListener('ended', () => {
+            if (wasMusicPlayingBeforeVideo && !isPlaying) {
+                bgMusic.play();
+                musicBtn.classList.add('playing');
+                isPlaying = true;
             }
         });
     }
 
-    // Fade in untuk elemen dengan class .gsap-fade
-    gsap.utils.toArray('.gsap-fade').forEach(section => {
-        gsap.from(section, {
-            scrollTrigger: {
-                trigger: section,
-                start: "top 85%",
-            },
-            y: 40,
-            opacity: 0,
-            duration: 1.2,
-            ease: "power2.out"
+    // 3. SCROLL REVEAL ANIMATION
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
         });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+    reveals.forEach(el => observer.observe(el));
+
+    // HERO SCROLL EFFECT (khusus hero saja)
+    const heroSection = document.querySelector("#hero");
+    const heroObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting){
+                entry.target.classList.add("hero-active");
+            }
+        });
+    },{ threshold: 0.3 });
+    if(heroSection) heroObserver.observe(heroSection);
+
+    // 4. BOTTOM NAV AUTO-HIDE
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+        const currentScrollY = window.scrollY;
+        if (currentScrollY > lastScrollY && currentScrollY > 300) {
+            bottomNav.classList.add('nav-hidden');
+        } else {
+            bottomNav.classList.remove('nav-hidden');
+        }
+        lastScrollY = currentScrollY;
     });
 
-    // Animasi Stagger untuk Gallery
-    gsap.from('.gsap-gallery', {
-        scrollTrigger: {
-            trigger: '.gsap-gallery',
-            start: "top 80%"
+    // 5. INIT SWIPER (Gallery)
+    const swiper = new Swiper('.mySwiper', {
+        effect: "coverflow",
+        grabCursor: true,
+        centeredSlides: true,
+        slidesPerView: "auto",
+        coverflowEffect: {
+            rotate: 20,
+            stretch: 0,
+            depth: 100,
+            modifier: 1,
+            slideShadows: false,
         },
-        y: 40,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.15,
-        ease: "back.out(1.2)"
+        loop: true,
+        autoplay: { delay: 3500, disableOnInteraction: false },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        breakpoints: {
+            320: { slidesPerView: 1.2, spaceBetween: 15 },
+            600: { slidesPerView: 2.2, spaceBetween: 20 }
+        }
     });
 
-    // Animasi Stagger untuk Love Story
-    gsap.from('.gsap-story', {
-        scrollTrigger: {
-            trigger: '.gsap-story',
-            start: "top 85%"
-        },
-        x: -40,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.2,
-        ease: "power2.out"
-    });
+    // 6. ADD TO CALENDAR LINKS
+    const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(CONFIG.eventTitle)}&dates=${CONFIG.eventStartUTC}/${CONFIG.eventEndUTC}&details=${encodeURIComponent(CONFIG.eventDesc)}&location=${encodeURIComponent(CONFIG.eventLocation)}`;
+    document.getElementById('btn-google-cal').href = googleCalUrl;
 
-    // 6. Tombol Salin Rekening
-    const btnCopyRek = document.getElementById('btn-copy-rek');
-    const rekBca = document.getElementById('rek-bca');
+    const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:${CONFIG.eventStartUTC}\nDTEND:${CONFIG.eventEndUTC}\nSUMMARY:${CONFIG.eventTitle}\nLOCATION:${CONFIG.eventLocation}\nDESCRIPTION:${CONFIG.eventDesc}\nEND:VEVENT\nEND:VCALENDAR`;
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const icsUrl = URL.createObjectURL(blob);
     
-    if (btnCopyRek && rekBca) {
-        btnCopyRek.addEventListener('click', () => {
-            navigator.clipboard.writeText(rekBca.innerText).then(() => {
-                const originalText = btnCopyRek.innerText;
-                btnCopyRek.innerText = 'Berhasil Disalin!';
-                btnCopyRek.classList.add('bg-green-500', 'text-white');
-                btnCopyRek.classList.remove('bg-white', 'text-black');
-                
-                setTimeout(() => {
-                    btnCopyRek.innerText = originalText;
-                    btnCopyRek.classList.add('bg-white', 'text-black');
-                    btnCopyRek.classList.remove('bg-green-500', 'text-white');
-                }, 2000);
-            });
+    const appleBtn = document.getElementById('btn-apple-cal');
+    const outlookBtn = document.getElementById('btn-outlook-cal');
+    appleBtn.href = icsUrl; appleBtn.download = "Wedding.ics";
+    outlookBtn.href = icsUrl; outlookBtn.download = "Wedding.ics";
+
+    // 7. COUNTDOWN TIMER
+    const weddingDate = new Date("April 5, 2026 08:00:00").getTime();
+    const countdownElement = document.getElementById("countdown");
+    
+    const countdown = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = weddingDate - now;
+
+        if(distance < 0){
+            clearInterval(countdown);
+            if(countdownElement) countdownElement.innerHTML = "<h3 style='color: var(--accent); margin-top: 20px;'>Acara Sedang Berlangsung / Telah Selesai 💍</h3>";
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        document.getElementById("days").innerText = days < 10 ? '0'+days : days;
+        document.getElementById("hours").innerText = hours < 10 ? '0'+hours : hours;
+        document.getElementById("minutes").innerText = minutes < 10 ? '0'+minutes : minutes;
+        document.getElementById("seconds").innerText = seconds < 10 ? '0'+seconds : seconds;
+    }, 1000);
+
+    // 8. RSVP FORM & LOCAL STORAGE
+    const rsvpForm = document.getElementById('rsvp-form');
+    const wishesListContainer = document.getElementById('wishes-list');
+    const STORAGE_KEY = 'rsvp_data_v1';
+
+    renderWishes();
+
+    rsvpForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const nama = document.getElementById('rsvp-name').value.trim();
+        const kehadiran = document.getElementById('rsvp-attendance').value;
+        const pesan = document.getElementById('rsvp-message').value.trim();
+
+        if(!nama || !kehadiran || !pesan) return;
+
+        const entry = { id: Date.now(), nama, kehadiran, pesan };
+        
+        const existingData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        existingData.unshift(entry);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(existingData));
+
+        renderWishes();
+        rsvpForm.reset();
+        showToast("Terima kasih atas ucapan dan doanya!");
+    });
+
+    function renderWishes() {
+        const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        
+        if(data.length === 0) {
+            wishesListContainer.innerHTML = `
+                <div class="wish-item text-center" style="border-left: none;">
+                    <p class="text-muted">Jadilah yang pertama memberikan ucapan!</p>
+                </div>`;
+            return;
+        }
+        
+        wishesListContainer.innerHTML = ''; 
+        data.forEach(item => {
+            const badgeClass = item.kehadiran === 'Hadir' ? 'badge-hadir' : 'badge-absen';
+            const icon = item.kehadiran === 'Hadir' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+            const card = document.createElement('div');
+            card.className = 'wish-item';
+            card.innerHTML = `
+                <div class="wish-name">${item.nama} <span class="${badgeClass}">${icon} ${item.kehadiran}</span></div>
+                <div class="wish-text">"${item.pesan}"</div>
+            `;
+            wishesListContainer.appendChild(card);
         });
+    }
+
+    // 9. ANIMASI PARTIKEL (BUNGA JATUH)
+    function initParticles() {
+        const container = document.getElementById('particles-container');
+        const particleCount = 15; // Jumlah kelopak
+        
+        for (let i = 0; i < particleCount; i++) {
+            createParticle(container);
+        }
+    }
+
+    function createParticle(container) {
+        const petal = document.createElement('div');
+        petal.classList.add('petal');
+        
+        // Posisi X random
+        petal.style.left = Math.random() * 100 + 'vw';
+        
+        // Ukuran random
+        const size = Math.random() * 8 + 8; // 8px - 16px
+        petal.style.width = size + 'px';
+        petal.style.height = size + 'px';
+        
+        // Durasi jatuh random (10s - 20s)
+        const duration = Math.random() * 10 + 10;
+        petal.style.animationDuration = duration + 's';
+        
+        // Delay random agar jatuhnya natural
+        petal.style.animationDelay = Math.random() * 10 + 's';
+        
+        container.appendChild(petal);
+
+        // Hapus dan buat lagi setelah animasi selesai untuk looping
+        setTimeout(() => {
+            petal.remove();
+            createParticle(container);
+        }, (duration + Math.random() * 5) * 1000);
     }
 });
+
+// --- FUNGSI GLOBAL ---
+
+// Fungsi Expand Story
+window.expandStory = function() {
+    const content = document.getElementById('story-full');
+    const btn = document.querySelector('.btn-expand');
+    
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        btn.innerHTML = 'Tutup Cerita <i class="fas fa-chevron-up"></i>';
+    } else {
+        content.classList.add('hidden');
+        btn.innerHTML = 'Lihat Cerita <i class="fas fa-chevron-down"></i>';
+    }
+};
+
+// Fungsi Copy Text
+window.copyText = function(elementId) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        showToast("Nomor berhasil disalin!");
+    }).catch(err => alert("Gagal menyalin."));
+};
+
+// Fungsi Tampilkan Toast
+window.showToast = function(message) {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+};
