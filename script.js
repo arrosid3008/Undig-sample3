@@ -31,9 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const bgMusic = document.getElementById('bg-music');
     const musicBtn = document.getElementById('music-control');
     let isPlaying = false;
-    let wasMusicPlayingBeforeVideo = false; // Flag untuk menyimpan status musik sebelum video diputar
+    let wasMusicPlayingBeforeVideo = false; 
 
-    // Fungsi Toggle Musik
     const toggleMusic = () => {
         if (isPlaying) {
             bgMusic.pause();
@@ -48,10 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
     musicBtn.addEventListener('click', toggleMusic);
 
     btnOpen.addEventListener('click', () => {
-        // Animasi Cover
         openingScreen.classList.add('slide-up');
         
-        // Tampilkan konten dan Tombol Musik
         setTimeout(() => {
             openingScreen.style.display = 'none';
             mainContent.classList.remove('hidden');
@@ -62,29 +59,24 @@ document.addEventListener("DOMContentLoaded", () => {
             initParticles();
         }, 800);
 
-        // Play Music Pertama Kali
         if (!isPlaying) toggleMusic();
     });
 
     // 2.1 INTERAKSI VIDEO & AUDIO STORY
     const storyVideo = document.getElementById('story-video');
-
     if(storyVideo) {
-        // Saat video dimainkan
         storyVideo.addEventListener('play', () => {
             if (isPlaying) {
-                wasMusicPlayingBeforeVideo = true; // Ingat bahwa musik tadi menyala
-                bgMusic.pause(); // Pause musik latar
-                musicBtn.classList.remove('playing'); // Matikan animasi piringan berputar
+                wasMusicPlayingBeforeVideo = true; 
+                bgMusic.pause(); 
+                musicBtn.classList.remove('playing'); 
                 isPlaying = false;
             } else {
                 wasMusicPlayingBeforeVideo = false;
             }
         });
 
-        // Saat video di-pause oleh user
         storyVideo.addEventListener('pause', () => {
-            // Jika musik tadi menyala sebelum video diputar, nyalakan kembali
             if (wasMusicPlayingBeforeVideo && !isPlaying) {
                 bgMusic.play();
                 musicBtn.classList.add('playing');
@@ -92,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Saat video selesai diputar sampai akhir
         storyVideo.addEventListener('ended', () => {
             if (wasMusicPlayingBeforeVideo && !isPlaying) {
                 bgMusic.play();
@@ -113,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
     reveals.forEach(el => observer.observe(el));
 
-    // HERO SCROLL EFFECT (khusus hero saja)
     const heroSection = document.querySelector("#hero");
     const heroObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -249,10 +239,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 9. ANIMASI PARTIKEL (BUNGA JATUH)
+    // 9. ANIMASI PARTIKEL (BUNGA JATUH) - DIOPTIMASI UNTUK MOBILE
     function initParticles() {
         const container = document.getElementById('particles-container');
-        const particleCount = 15; // Jumlah kelopak
+        // Kosongkan container berjaga-jaga jika ter-trigger 2x
+        container.innerHTML = '';
+        const particleCount = 15;
         
         for (let i = 0; i < particleCount; i++) {
             createParticle(container);
@@ -263,34 +255,31 @@ document.addEventListener("DOMContentLoaded", () => {
         const petal = document.createElement('div');
         petal.classList.add('petal');
         
-        // Posisi X random
-        petal.style.left = Math.random() * 100 + 'vw';
+        // Menggunakan persen (%) agar responsif di layar mobile
+        petal.style.left = Math.random() * 100 + '%';
         
-        // Ukuran random
         const size = Math.random() * 8 + 8; // 8px - 16px
         petal.style.width = size + 'px';
         petal.style.height = size + 'px';
         
-        // Durasi jatuh random (10s - 20s)
-        const duration = Math.random() * 10 + 10;
+        // Durasi 10s - 15s (agar tidak terlalu berat dan cepat dirender)
+        const duration = Math.random() * 5 + 10;
         petal.style.animationDuration = duration + 's';
         
-        // Delay random agar jatuhnya natural
-        petal.style.animationDelay = Math.random() * 10 + 's';
+        petal.style.animationDelay = Math.random() * 5 + 's';
         
         container.appendChild(petal);
 
-        // Hapus dan buat lagi setelah animasi selesai untuk looping
-        setTimeout(() => {
+        // Hapus elemen HANYA ketika animasi CSS selesai, lalu buat ulang
+        // Ini lebih aman dan hemat memori (cleaner DOM)
+        petal.addEventListener('animationend', () => {
             petal.remove();
             createParticle(container);
-        }, (duration + Math.random() * 5) * 1000);
+        });
     }
 });
 
 // --- FUNGSI GLOBAL ---
-
-// Fungsi Expand Story
 window.expandStory = function() {
     const content = document.getElementById('story-full');
     const btn = document.querySelector('.btn-expand');
@@ -304,7 +293,6 @@ window.expandStory = function() {
     }
 };
 
-// Fungsi Copy Text
 window.copyText = function(elementId) {
     const text = document.getElementById(elementId).innerText;
     navigator.clipboard.writeText(text).then(() => {
@@ -312,7 +300,6 @@ window.copyText = function(elementId) {
     }).catch(err => alert("Gagal menyalin."));
 };
 
-// Fungsi Tampilkan Toast
 window.showToast = function(message) {
     const toast = document.getElementById('toast');
     toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
