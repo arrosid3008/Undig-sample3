@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const container = document.getElementById('particles-container');
         // Kosongkan container berjaga-jaga jika ter-trigger 2x
         container.innerHTML = '';
-        const particleCount = 15;
+        const particleCount = 30;
         
         for (let i = 0; i < particleCount; i++) {
             createParticle(container);
@@ -263,10 +263,10 @@ document.addEventListener("DOMContentLoaded", () => {
         petal.style.height = size + 'px';
         
         // Durasi 10s - 15s (agar tidak terlalu berat dan cepat dirender)
-        const duration = Math.random() * 5 + 10;
+        const duration = Math.random() * 10 + 15;
         petal.style.animationDuration = duration + 's';
         
-        petal.style.animationDelay = Math.random() * 5 + 's';
+        petal.style.animationDelay = Math.random() * 10 + 's';
         
         container.appendChild(petal);
 
