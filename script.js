@@ -1,8 +1,8 @@
 // --- CONFIGURASI DATA ---
 const CONFIG = {
     eventTitle: "Pernikahan Arrosid & Zumrotus",
-    eventStartUTC: "20260405T010000Z", // Jam 08:00 WIB
-    eventEndUTC: "20260405T060000Z",   // Jam 13:00 WIB
+    eventStartUTC: "20260405T010000Z", 
+    eventEndUTC: "20260405T060000Z",   
     eventLocation: "GOR Jatimekar, Bandung",
     eventDesc: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir."
 };
@@ -10,21 +10,16 @@ const CONFIG = {
 let replyToId = null; 
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    /* PARAMETER URL NAMA TAMU */
+    // 1. Setup Guest Name URL Parameter
     const urlParams = new URLSearchParams(window.location.search);
     const guestName = urlParams.get('to');
     const guestNameEl = document.getElementById('guest-name');
     
     if(guestNameEl) {
-        if(guestName && guestName.trim() !== '') {
-            guestNameEl.innerText = guestName; 
-        } else {
-            guestNameEl.innerText = "Tamu Undangan"; 
-        }
+        guestNameEl.innerText = (guestName && guestName.trim() !== '') ? guestName : "Tamu Spesial"; 
     }
 
-    // 1. THEME TOGGLE
+    // 2. Theme Toggle
     const themeBtn = document.getElementById('theme-toggle');
     const body = document.body;
     if(themeBtn) {
@@ -39,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. BUKA UNDANGAN, MUSIC CONTROL, & MAGIC BURST
+    // 3. Opening Invitation & Music
     const btnOpen = document.getElementById('btn-open');
     const openingScreen = document.getElementById('opening-screen');
     const mainContent = document.getElementById('main-content');
@@ -50,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let wasMusicPlayingBeforeVideo = false; 
 
     const toggleMusic = () => {
+        if (!bgMusic) return;
         if (isPlaying) {
             bgMusic.pause();
             if(musicBtn) musicBtn.classList.remove('playing');
@@ -64,28 +60,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(btnOpen) {
         btnOpen.addEventListener('click', (e) => {
-            // TRIGGER EFEK MAGIC BURST
             triggerConfetti(e.clientX, e.clientY);
-
             setTimeout(() => {
                 openingScreen.classList.add('slide-up');
-                
                 setTimeout(() => {
                     openingScreen.style.display = 'none';
                     mainContent.classList.remove('hidden');
                     bottomNav.classList.remove('hidden');
                     if(musicBtn) musicBtn.classList.remove('hidden');
-                    
-                    // INIT EFEK STARDUST ELEGAN
                     initParticles();
-                }, 800);
-
+                }, 800); 
                 if (!isPlaying) toggleMusic();
-            }, 500); // Delay sedikit lebih lama agar ledakan cahayanya terlihat memukau
+            }, 300); 
         });
     }
 
-    // 2.1 INTERAKSI VIDEO & AUDIO STORY
+    // 4. Video Interaction (Pause music when video plays)
     const storyVideo = document.getElementById('story-video');
     if(storyVideo) {
         storyVideo.addEventListener('play', () => {
@@ -98,25 +88,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 wasMusicPlayingBeforeVideo = false;
             }
         });
-
-        storyVideo.addEventListener('pause', () => {
+        const resumeMusic = () => {
             if (wasMusicPlayingBeforeVideo && !isPlaying) {
                 bgMusic.play();
                 if(musicBtn) musicBtn.classList.add('playing');
                 isPlaying = true;
             }
-        });
-
-        storyVideo.addEventListener('ended', () => {
-            if (wasMusicPlayingBeforeVideo && !isPlaying) {
-                bgMusic.play();
-                if(musicBtn) musicBtn.classList.add('playing');
-                isPlaying = true;
-            }
-        });
+        };
+        storyVideo.addEventListener('pause', resumeMusic);
+        storyVideo.addEventListener('ended', resumeMusic);
     }
 
-    // 3. SCROLL REVEAL ANIMATION
+    // 5. Scroll Reveal Animation (Intersection Observer)
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -124,53 +107,49 @@ document.addEventListener("DOMContentLoaded", () => {
                 entry.target.classList.add('active');
             }
         });
-    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+    }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
     reveals.forEach(el => observer.observe(el));
 
     const heroSection = document.querySelector("#hero");
-    const heroObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if(entry.isIntersecting){
-                entry.target.classList.add("hero-active");
-            }
-        });
-    },{ threshold: 0.3 });
-    if(heroSection) heroObserver.observe(heroSection);
+    if(heroSection) {
+        const heroObserver = new IntersectionObserver((entries) => {
+            if(entries[0].isIntersecting) entries[0].target.classList.add("hero-active");
+        },{ threshold: 0.3 });
+        heroObserver.observe(heroSection);
+    }
 
-    // 4. BOTTOM NAV AUTO-HIDE
+    // 6. Smart Bottom Nav (Hide on scroll down)
     let lastScrollY = window.scrollY;
+    let ticking = false;
     window.addEventListener('scroll', () => {
-        const currentScrollY = window.scrollY;
-        if (currentScrollY > lastScrollY && currentScrollY > 300) {
-            bottomNav.classList.add('nav-hidden');
-        } else {
-            bottomNav.classList.remove('nav-hidden');
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const currentScrollY = window.scrollY;
+                if (currentScrollY > lastScrollY && currentScrollY > 300) {
+                    bottomNav.classList.add('nav-hidden');
+                } else {
+                    bottomNav.classList.remove('nav-hidden');
+                }
+                lastScrollY = currentScrollY;
+                ticking = false;
+            });
+            ticking = true;
         }
-        lastScrollY = currentScrollY;
     });
 
-    // 5. INIT SWIPER (Gallery)
+    // 7. Initialize Swiper Gallery
     if(typeof Swiper !== 'undefined') {
         new Swiper('.mySwiper', {
-            effect: "coverflow",
-            grabCursor: true,
-            centeredSlides: true,
-            slidesPerView: "auto",
-            coverflowEffect: {
-                rotate: 20, stretch: 0, depth: 100, modifier: 1, slideShadows: false,
-            },
-            loop: true,
-            autoplay: { delay: 3500, disableOnInteraction: false },
+            effect: "coverflow", grabCursor: true, centeredSlides: true, slidesPerView: "auto",
+            coverflowEffect: { rotate: 5, stretch: 0, depth: 100, modifier: 2, slideShadows: false },
+            loop: true, autoplay: { delay: 3500, disableOnInteraction: false },
             pagination: { el: '.swiper-pagination', clickable: true },
             navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-            breakpoints: {
-                320: { slidesPerView: 1.2, spaceBetween: 15 },
-                600: { slidesPerView: 2.2, spaceBetween: 20 }
-            }
+            breakpoints: { 320: { slidesPerView: 1.2, spaceBetween: 20 }, 600: { slidesPerView: 2.2, spaceBetween: 30 } }
         });
     }
 
-    // 6. ADD TO CALENDAR LINKS
+    // 8. Calendar Setup
     const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(CONFIG.eventTitle)}&dates=${CONFIG.eventStartUTC}/${CONFIG.eventEndUTC}&details=${encodeURIComponent(CONFIG.eventDesc)}&location=${encodeURIComponent(CONFIG.eventLocation)}`;
     const btnGoogle = document.getElementById('btn-google-cal');
     if(btnGoogle) btnGoogle.href = googleCalUrl;
@@ -184,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if(appleBtn) { appleBtn.href = icsUrl; appleBtn.download = "Wedding.ics"; }
     if(outlookBtn) { outlookBtn.href = icsUrl; outlookBtn.download = "Wedding.ics"; }
 
-    // 7. COUNTDOWN TIMER
+    // 9. Countdown Timer
     const weddingDate = new Date("April 5, 2026 08:00:00").getTime();
     const countdownElement = document.getElementById("countdown");
     
@@ -195,26 +174,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if(distance < 0){
                 clearInterval(countdown);
-                countdownElement.innerHTML = "<h3 style='color: var(--accent); margin-top: 20px; font-family: Playfair Display;'>Acara Sedang Berlangsung / Telah Selesai 💍</h3>";
+                countdownElement.innerHTML = "<h3 style='color: var(--accent); margin-top: 20px; font-family: Playfair Display;'>Acara Telah Berlangsung / Selesai 💍</h3>";
                 return;
             }
 
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
-            document.getElementById("days").innerText = days < 10 ? '0'+days : days;
-            document.getElementById("hours").innerText = hours < 10 ? '0'+hours : hours;
-            document.getElementById("minutes").innerText = minutes < 10 ? '0'+minutes : minutes;
-            document.getElementById("seconds").innerText = seconds < 10 ? '0'+seconds : seconds;
+            document.getElementById("days").innerText = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+            document.getElementById("hours").innerText = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+            document.getElementById("minutes").innerText = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            document.getElementById("seconds").innerText = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
         }, 1000);
     }
 
-    // 8. RSVP CHAT FORM & LOCAL STORAGE
+    // 10. RSVP Form & LocalStorage Logic
     const rsvpForm = document.getElementById('rsvp-form');
     const STORAGE_KEY = 'rsvp_chat_v1';
-
     renderChat(STORAGE_KEY);
 
     if(rsvpForm) {
@@ -247,13 +220,11 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Terima kasih atas ucapan dan doanya!");
 
             const chatList = document.getElementById('wishes-list');
-            if(chatList) {
-                setTimeout(() => chatList.scrollTop = chatList.scrollHeight, 100);
-            }
+            if(chatList) setTimeout(() => chatList.scrollTop = chatList.scrollHeight, 100);
         });
     }
 
-    // 10. FITUR BUTTON REVEAL GIFT
+    // 11. Gift Reveal Logic
     const btnRevealGift = document.getElementById('btn-reveal-gift');
     const giftContainer = document.getElementById('gift-container');
 
@@ -275,8 +246,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-
 // --- FUNGSI GLOBAL ---
+window.toggleGiftInfo = function(btn) {
+    const card = btn.closest('.atm-card');
+    card.classList.toggle('expanded');
+    btn.innerHTML = card.classList.contains('expanded') ? '<i class="fas fa-chevron-up"></i> Tutup' : 'Info';
+};
+
+window.copyText = function(elementId, btnElement) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const originalHtml = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+        btnElement.classList.add('copied');
+        showToast("Berhasil disalin!");
+        
+        setTimeout(() => {
+            btnElement.innerHTML = originalHtml;
+            btnElement.classList.remove('copied');
+        }, 2000);
+    }).catch(err => alert("Gagal menyalin."));
+};
 
 window.renderChat = function(storageKey) {
     const container = document.getElementById('wishes-list');
@@ -285,7 +275,7 @@ window.renderChat = function(storageKey) {
     const data = JSON.parse(localStorage.getItem(storageKey)) || [];
     
     if(data.length === 0) {
-        container.innerHTML = `<p class="text-muted" style="text-align:center;">Jadilah yang pertama mengirim ucapan!</p>`;
+        container.innerHTML = `<p class="text-muted" style="text-align:center; font-family:sans-serif; font-size:0.9rem;">Jadilah yang pertama mengirim ucapan!</p>`;
         return;
     }
     
@@ -296,7 +286,7 @@ window.renderChat = function(storageKey) {
             const targetMsg = data.find(d => d.id === item.replyTo);
             if(targetMsg) {
                 const shortMsg = targetMsg.pesan.length > 40 ? targetMsg.pesan.substring(0, 40) + '...' : targetMsg.pesan;
-                quoteHtml = `<div class="chat-quote"><b>${targetMsg.nama}</b> ${shortMsg}</div>`;
+                quoteHtml = `<div class="chat-quote" style="background: var(--bg-secondary); padding: 8px 12px; border-left: 3px solid var(--accent); font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px; border-radius: 4px;"><b>${targetMsg.nama}</b> ${shortMsg}</div>`;
             }
         }
 
@@ -307,38 +297,36 @@ window.renderChat = function(storageKey) {
         card.className = 'chat-bubble';
         card.innerHTML = `
             ${quoteHtml}
-            <div class="chat-header">
-                <div class="chat-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
+                <div style="display: flex; flex-direction: column;">
                     <span class="chat-name">${item.nama}</span>
                     <span class="chat-time">${displayTime}</span>
                 </div>
-                <span class="chat-badge ${badgeClass}"><i class="fas ${item.kehadiran==='Hadir'?'fa-check-circle':'fa-times-circle'}"></i> ${item.kehadiran}</span>
+                <span class="${badgeClass}"><i class="fas ${item.kehadiran==='Hadir'?'fa-check-circle':'fa-times-circle'}"></i> ${item.kehadiran}</span>
             </div>
             <div class="chat-text">${item.pesan}</div>
-            <button class="btn-reply-chat" onclick="setReplyChat('${item.id}', '${item.nama.replace(/'/g,"\\'").replace(/"/g,'"')}', '${item.pesan.replace(/'/g,"\\'").replace(/"/g,'"')}')"><i class="fas fa-reply"></i> Balas</button>
+            <button style="background: transparent; border: none; color: var(--accent); font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; font-family: sans-serif;" onclick="setReplyChat('${item.id}', '${item.nama.replace(/'/g,"\\'").replace(/"/g,'"')}')"><i class="fas fa-reply"></i> Balas</button>
         `;
         container.appendChild(card);
     });
 };
 
-window.setReplyChat = function(id, nama, pesan) {
+window.setReplyChat = function(id, nama) {
     replyToId = id;
-    const indicator = document.getElementById('reply-indicator');
-    const indicatorName = document.getElementById('reply-indicator-name');
-    
-    if(indicator && indicatorName) {
-        indicator.classList.remove('hidden');
-        indicatorName.innerText = nama;
+    const rsvpMsg = document.getElementById('rsvp-message');
+    if(rsvpMsg) {
+        rsvpMsg.placeholder = `Membalas ucapan ${nama}...`;
+        rsvpMsg.focus();
     }
-    document.getElementById('rsvp-message').focus();
 };
 
 window.cancelReplyChat = function() {
     replyToId = null;
-    const indicator = document.getElementById('reply-indicator');
-    if(indicator) indicator.classList.add('hidden');
+    const rsvpMsg = document.getElementById('rsvp-message');
+    if(rsvpMsg) rsvpMsg.placeholder = "Tuliskan doa & ucapan...";
 };
 
+// Modifikasi Logika Expand Story 
 window.expandStory = function() {
     const content = document.getElementById('story-full');
     const btn = document.querySelector('.btn-expand');
@@ -346,18 +334,13 @@ window.expandStory = function() {
 
     if (content.classList.contains('hidden')) {
         content.classList.remove('hidden');
-        btn.innerHTML = 'Tutup Cerita <i class="fas fa-chevron-up"></i>';
+        // Ikon Heart Tetap Muncul saat ditutup
+        btn.innerHTML = '<i class="fas fa-heart"></i> Tutup Cerita <i class="fas fa-chevron-up"></i>';
     } else {
         content.classList.add('hidden');
-        btn.innerHTML = 'Lihat Cerita <i class="fas fa-chevron-down"></i>';
+        // Ikon Heart Tetap Muncul saat dilihat
+        btn.innerHTML = '<i class="fas fa-heart"></i> Lihat Cerita <i class="fas fa-chevron-down"></i>';
     }
-};
-
-window.copyText = function(elementId) {
-    const text = document.getElementById(elementId).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-        showToast("Berhasil disalin!");
-    }).catch(err => alert("Gagal menyalin."));
 };
 
 window.showToast = function(message) {
@@ -368,20 +351,16 @@ window.showToast = function(message) {
     setTimeout(() => toast.classList.remove('show'), 3000);
 };
 
-// =========================================================
-// REVISI: EFEK STARDUST ELEGAN (Menggantikan Daun)
-// =========================================================
 window.initParticles = function() {
     const container = document.getElementById('particles-container');
     if(!container) return;
     container.innerHTML = '';
     
-    // Warna Stardust: Emas utama, Emas Muda, dan Putih
-    const colors = ['#b59551', '#d4af37', '#ffffff', '#f9f6f0'];
-    const particleCount = 15; // Jumlah jauh lebih sedikit agar elegan dan ringan
+    const colors = ['#b89152', '#d4af37', '#ffffff', '#e3d9c6'];
+    const particleCount = 35; 
     
     for (let i = 0; i < particleCount; i++) {
-        setTimeout(() => createParticle(container, colors), Math.random() * 5000);
+        setTimeout(() => createParticle(container, colors), Math.random() * 3000);
     }
 };
 
@@ -391,20 +370,17 @@ function createParticle(container, colors) {
     
     const randColor = colors[Math.floor(Math.random() * colors.length)];
     dust.style.backgroundColor = randColor;
-    dust.style.boxShadow = `0 0 8px ${randColor}, 0 0 15px rgba(255, 255, 255, 0.5)`; // Glowing
+    dust.style.boxShadow = `0 0 8px ${randColor}, 0 0 10px rgba(255, 255, 255, 0.3)`;
     
     dust.style.left = Math.random() * 100 + '%';
     
-    // Ukuran sangat kecil dan lembut (3px - 6px)
-    const size = Math.random() * 3 + 3; 
+    const size = Math.random() * 3 + 2; 
     dust.style.width = size + 'px';
     dust.style.height = size + 'px';
     
-    // Durasi sangat lambat agar terlihat tenang (15 - 25 detik)
-    const duration = Math.random() * 10 + 15; 
+    const duration = Math.random() * 5 + 6; 
     dust.style.animationDuration = duration + 's';
     
-    // Bergerak lembut ke kiri/kanan
     const swayX = (Math.random() * 100 - 50) + 'px'; 
     dust.style.setProperty('--sway-x', swayX);
     
@@ -416,9 +392,6 @@ function createParticle(container, colors) {
     });
 }
 
-// =========================================================
-// REVISI: EFEK BURST MAGIC STARDUST
-// =========================================================
 window.triggerConfetti = function(x, y) {
     let container = document.getElementById('confetti-container');
     if(!container) {
@@ -427,9 +400,8 @@ window.triggerConfetti = function(x, y) {
         document.body.appendChild(container);
     }
     
-    // Palet warna mewah untuk ledakan partikel
-    const colors = ['#d4af37', '#b59551', '#ffffff', '#fff8e7'];
-    const burstCount = 60; // Jumlah partikel ledakan diperbanyak agar memukau
+    const colors = ['#d4af37', '#b89152', '#ffffff', '#e3d9c6'];
+    const burstCount = 40; 
     
     for(let i = 0; i < burstCount; i++) {
         const spark = document.createElement('div');
@@ -440,16 +412,16 @@ window.triggerConfetti = function(x, y) {
         
         const color = colors[Math.floor(Math.random() * colors.length)];
         spark.style.backgroundColor = color;
-        spark.style.boxShadow = `0 0 10px ${color}, 0 0 20px #ffffff`;
         
-        // Ukuran partikel ledakan
-        const size = Math.random() * 5 + 3;
+        spark.style.borderRadius = Math.random() > 0.5 ? '2px' : '50%';
+        spark.style.boxShadow = `0 2px 5px rgba(0,0,0,0.2)`;
+        
+        const size = Math.random() * 6 + 4;
         spark.style.width = size + 'px';
         spark.style.height = size + 'px';
         
-        // Pola ledakan menyebar 360 derajat
         const angle = Math.random() * Math.PI * 2;
-        const velocity = 80 + Math.random() * 150; // Jarak tembak
+        const velocity = 50 + Math.random() * 100; 
         const dx = Math.cos(angle) * velocity + 'px';
         const dy = Math.sin(angle) * velocity + 'px';
         
@@ -457,8 +429,6 @@ window.triggerConfetti = function(x, y) {
         spark.style.setProperty('--dy', dy);
         
         container.appendChild(spark);
-        
-        // Hapus partikel setelah animasi (1.5 detik)
-        setTimeout(() => spark.remove(), 1500);
+        setTimeout(() => spark.remove(), 800);
     }
 };

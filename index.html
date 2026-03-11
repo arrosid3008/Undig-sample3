@@ -68,7 +68,7 @@
                             <img src="assets/img/ppzum.jpeg" alt="Bride">
                         </div>
                         <h3>Zumrotus Sa'adah</h3>
-                        <p class="parents">Putri dari Bapak Rhanang & Ibu Sulistyorini</p>
+                        <p class="parents">Putri dari Bapak Rhanang Muhyar & Ibu Sulistyorini</p>
                         <a href="#" class="ig-link"><i class="fab fa-instagram"></i> @cnafhxnt</a>
                     </div>
 
@@ -117,7 +117,7 @@
                 </div>
             </section>
 
-          <section id="savethedate" class="section reveal fade-up">
+            <section id="savethedate" class="section reveal fade-up">
                 <div class="save-date-container text-center">
                     <h2>Save The Date</h2>
                     <div class="date-info">
@@ -175,7 +175,9 @@
                         <p class="text-muted" style="font-size: 1.3rem;">Setiap cerita memiliki permulaannya sendiri...</p>
                     </div>
                     
-                    <button class="btn-primary btn-expand w-100 mt-3" onclick="expandStory()" style="border-radius: 0;">Lihat Cerita <i class="fas fa-chevron-down"></i></button>
+                    <button class="btn-primary btn-expand w-100 mt-3" onclick="expandStory()" style="border-radius: 0;">
+                        <i class="fas fa-heart"></i> Lihat Cerita <i class="fas fa-chevron-down"></i>
+                    </button>
                     
                     <div id="story-full" class="story-full-content hidden">
                         <div class="timeline-container mt-4">
@@ -221,40 +223,62 @@
                 <div id="gift-container" class="gift-container hidden">
                     
                     <div class="atm-card mb-3">
-                        <div class="atm-header">
-                            <i class="fas fa-microchip chip-icon"></i>
-                            <span class="bank-name"><i class="fas fa-university"></i> BCA</span>
+                        <div class="gift-header">
+                            <div class="gift-title-wrap">
+                                <div class="gift-icon-box"><i class="fas fa-university"></i></div>
+                                <div class="gift-title-text">
+                                    <h4>BCA</h4>
+                                    <p>Muhamad Arrosid</p>
+                                </div>
+                            </div>
+                            <button class="btn-info" onclick="toggleGiftInfo(this)">Info</button>
                         </div>
-                        <div class="atm-body">
-                            <p id="rek-bca" class="atm-number">3930698821</p>
-                            <p class="atm-owner">a.n Muhamad Arrosid</p>
+                        <div class="gift-details">
+                            <div class="atm-body">
+                                <p id="rek-bca" class="atm-number">3930698821</p>
+                            </div>
+                            <button class="btn-copy-atm" onclick="copyText('rek-bca', this)"><i class="far fa-copy"></i> Salin Rekening</button>
                         </div>
-                        <button class="btn-copy-atm" onclick="copyText('rek-bca')"><i class="far fa-copy"></i> Salin Rekening</button>
                     </div>
 
                     <div class="atm-card mb-3">
-                        <div class="atm-header">
-                            <i class="fas fa-microchip chip-icon"></i>
-                            <span class="bank-name"><i class="fas fa-wallet"></i> DANA</span>
+                        <div class="gift-header">
+                            <div class="gift-title-wrap">
+                                <div class="gift-icon-box"><i class="fas fa-wallet"></i></div>
+                                <div class="gift-title-text">
+                                    <h4>DANA</h4>
+                                    <p>Zumrotus Sa'adah</p>
+                                </div>
+                            </div>
+                            <button class="btn-info" onclick="toggleGiftInfo(this)">Info</button>
                         </div>
-                        <div class="atm-body">
-                            <p id="rek-dana" class="atm-number">089519773602</p>
-                            <p class="atm-owner">a.n Zumrotus Sa'adah</p>
+                        <div class="gift-details">
+                            <div class="atm-body">
+                                <p id="rek-dana" class="atm-number">089519773602</p>
+                            </div>
+                            <button class="btn-copy-atm" onclick="copyText('rek-dana', this)"><i class="far fa-copy"></i> Salin Nomor</button>
                         </div>
-                        <button class="btn-copy-atm" onclick="copyText('rek-dana')"><i class="far fa-copy"></i> Salin Nomor</button>
                     </div>
 
                     <div class="atm-card physical-gift-card">
-                        <div class="atm-header">
-                            <i class="fas fa-box-open chip-icon"></i>
-                            <span class="bank-name">Kirim Hadiah</span>
+                        <div class="gift-header">
+                            <div class="gift-title-wrap">
+                                <div class="gift-icon-box"><i class="fas fa-box-open"></i></div>
+                                <div class="gift-title-text">
+                                    <h4>Kirim Kado</h4>
+                                    <p>Zumrotus Sa'adah</p>
+                                </div>
+                            </div>
+                            <button class="btn-info" onclick="toggleGiftInfo(this)">Info</button>
                         </div>
-                        <div class="atm-body">
-                            <p class="atm-owner" style="margin-bottom: 5px; font-size: 1.1rem; color: var(--text-main);">Penerima: <b>Zumrotus Sa'adah</b></p>
-                            <p class="atm-owner" style="margin-bottom: 10px; font-size: 1rem;">No. HP: 089519773602</p>
-                            <p id="alamat-kado" class="atm-address">Perum Bojong Malaka Indah Blok H3 no 136 Bojongmalaka, Baleendah, Bandung</p>
+                        <div class="gift-details">
+                            <div class="atm-body text-left">
+                                <p class="atm-owner" style="margin-bottom: 5px; font-size: 1.1rem; color: var(--text-main);">Penerima: <b>Zumrotus Sa'adah</b></p>
+                                <p class="atm-owner" style="margin-bottom: 10px; font-size: 1rem;">No. HP: 089519773602</p>
+                                <p id="alamat-kado" class="atm-address">Perum Bojong Malaka Indah Blok H3 no 136 Bojongmalaka, Baleendah, Bandung</p>
+                            </div>
+                            <button class="btn-copy-atm" onclick="copyText('alamat-kado', this)"><i class="far fa-copy"></i> Salin Alamat</button>
                         </div>
-                        <button class="btn-copy-atm" onclick="copyText('alamat-kado')"><i class="far fa-copy"></i> Salin Alamat</button>
                     </div>
 
                 </div>
