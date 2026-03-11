@@ -7,22 +7,20 @@ const CONFIG = {
     eventDesc: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir."
 };
 
-let replyToId = null; // Menyimpan ID pesan yang sedang di-reply
+let replyToId = null; 
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* =========================================================
-       REVISI 5: BACA PARAMETER URL (?to=Nama Tamu) 
-       ========================================================= */
+    /* PARAMETER URL NAMA TAMU */
     const urlParams = new URLSearchParams(window.location.search);
     const guestName = urlParams.get('to');
     const guestNameEl = document.getElementById('guest-name');
     
     if(guestNameEl) {
         if(guestName && guestName.trim() !== '') {
-            guestNameEl.innerText = guestName; // Jika ada parameter di link
+            guestNameEl.innerText = guestName; 
         } else {
-            guestNameEl.innerText = "Tamu Undangan"; // Jika link tanpa parameter
+            guestNameEl.innerText = "Tamu Undangan"; 
         }
     }
 
@@ -41,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. BUKA UNDANGAN, MUSIC CONTROL, & CONFETTI
+    // 2. BUKA UNDANGAN, MUSIC CONTROL, & MAGIC BURST
     const btnOpen = document.getElementById('btn-open');
     const openingScreen = document.getElementById('opening-screen');
     const mainContent = document.getElementById('main-content');
@@ -66,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(btnOpen) {
         btnOpen.addEventListener('click', (e) => {
+            // TRIGGER EFEK MAGIC BURST
             triggerConfetti(e.clientX, e.clientY);
 
             setTimeout(() => {
@@ -77,11 +76,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     bottomNav.classList.remove('hidden');
                     if(musicBtn) musicBtn.classList.remove('hidden');
                     
+                    // INIT EFEK STARDUST ELEGAN
                     initParticles();
                 }, 800);
 
                 if (!isPlaying) toggleMusic();
-            }, 400); 
+            }, 500); // Delay sedikit lebih lama agar ledakan cahayanya terlihat memukau
         });
     }
 
@@ -157,11 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
             centeredSlides: true,
             slidesPerView: "auto",
             coverflowEffect: {
-                rotate: 20,
-                stretch: 0,
-                depth: 100,
-                modifier: 1,
-                slideShadows: false,
+                rotate: 20, stretch: 0, depth: 100, modifier: 1, slideShadows: false,
             },
             loop: true,
             autoplay: { delay: 3500, disableOnInteraction: false },
@@ -231,15 +227,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if(!nama || !kehadiran || !pesan) return;
 
-            /* Merekam waktu untuk dimasukkan ke Chat Wishes */
             const now = new Date();
             const timeStr = now.toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
 
             const entry = { 
                 id: Date.now().toString(), 
                 nama, kehadiran, pesan,
-                waktu: timeStr, // Data tambahan untuk jam/tanggal
-                replyTo: replyToId
+                waktu: timeStr,
+                replyTo: replyToId 
             };
             
             const existingData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -283,7 +278,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // --- FUNGSI GLOBAL ---
 
-// FUNGSI RENDER CHAT
 window.renderChat = function(storageKey) {
     const container = document.getElementById('wishes-list');
     if(!container) return;
@@ -310,7 +304,7 @@ window.renderChat = function(storageKey) {
         const displayTime = item.waktu || 'Baru saja';
         
         const card = document.createElement('div');
-        card.className = 'chat-bubble'; // Merubah class mengikuti UI baru
+        card.className = 'chat-bubble';
         card.innerHTML = `
             ${quoteHtml}
             <div class="chat-header">
@@ -321,7 +315,7 @@ window.renderChat = function(storageKey) {
                 <span class="chat-badge ${badgeClass}"><i class="fas ${item.kehadiran==='Hadir'?'fa-check-circle':'fa-times-circle'}"></i> ${item.kehadiran}</span>
             </div>
             <div class="chat-text">${item.pesan}</div>
-            <button class="btn-reply-chat" onclick="setReplyChat('${item.id}', '${item.nama.replace(/'/g,"\\'").replace(/"/g,'&quot;')}', '${item.pesan.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><i class="fas fa-reply"></i> Balas</button>
+            <button class="btn-reply-chat" onclick="setReplyChat('${item.id}', '${item.nama.replace(/'/g,"\\'").replace(/"/g,'"')}', '${item.pesan.replace(/'/g,"\\'").replace(/"/g,'"')}')"><i class="fas fa-reply"></i> Balas</button>
         `;
         container.appendChild(card);
     });
@@ -374,15 +368,17 @@ window.showToast = function(message) {
     setTimeout(() => toast.classList.remove('show'), 3000);
 };
 
-// EFEK DAUN JATUH LEBIH NATURAL
+// =========================================================
+// REVISI: EFEK STARDUST ELEGAN (Menggantikan Daun)
+// =========================================================
 window.initParticles = function() {
     const container = document.getElementById('particles-container');
     if(!container) return;
     container.innerHTML = '';
     
-    // Warna alam: Hijau, Kuning, dan sedikit warna pudar agar seperti di taman
-    const colors = ['#4CAF50', '#8BC34A', '#FFEB3B', '#FDD835', '#A5D6A7'];
-    const particleCount = 45; // Diperbanyak agar sedikit lebih ramai
+    // Warna Stardust: Emas utama, Emas Muda, dan Putih
+    const colors = ['#b59551', '#d4af37', '#ffffff', '#f9f6f0'];
+    const particleCount = 15; // Jumlah jauh lebih sedikit agar elegan dan ringan
     
     for (let i = 0; i < particleCount; i++) {
         setTimeout(() => createParticle(container, colors), Math.random() * 5000);
@@ -390,37 +386,39 @@ window.initParticles = function() {
 };
 
 function createParticle(container, colors) {
-    const leaf = document.createElement('div');
-    leaf.classList.add('leaf'); 
+    const dust = document.createElement('div');
+    dust.classList.add('magic-dust'); 
     
     const randColor = colors[Math.floor(Math.random() * colors.length)];
-    leaf.style.backgroundColor = randColor;
+    dust.style.backgroundColor = randColor;
+    dust.style.boxShadow = `0 0 8px ${randColor}, 0 0 15px rgba(255, 255, 255, 0.5)`; // Glowing
     
-    leaf.style.left = Math.random() * 100 + '%';
-    const size = Math.random() * 12 + 10; // Ukuran bervariasi
-    leaf.style.width = size + 'px';
-    leaf.style.height = (size * 1.5) + 'px'; // Bentuk lonjong seperti daun asli
+    dust.style.left = Math.random() * 100 + '%';
     
-    const duration = Math.random() * 8 + 8; // Waktu jatuh lebih pelan dan natural
-    leaf.style.animationDuration = duration + 's';
+    // Ukuran sangat kecil dan lembut (3px - 6px)
+    const size = Math.random() * 3 + 3; 
+    dust.style.width = size + 'px';
+    dust.style.height = size + 'px';
     
-    // Pergerakan sway ke kanan/kiri
-    const swayX = (Math.random() * 200 - 100) + 'px'; 
-    const rot = (Math.random() * 500 + 100) + 'deg'; 
+    // Durasi sangat lambat agar terlihat tenang (15 - 25 detik)
+    const duration = Math.random() * 10 + 15; 
+    dust.style.animationDuration = duration + 's';
     
-    leaf.style.setProperty('--sway-x', swayX);
-    leaf.style.setProperty('--rot', rot);
+    // Bergerak lembut ke kiri/kanan
+    const swayX = (Math.random() * 100 - 50) + 'px'; 
+    dust.style.setProperty('--sway-x', swayX);
     
-    container.appendChild(leaf);
+    container.appendChild(dust);
 
-    // Animasi kontinu (loop tak putus)
-    leaf.addEventListener('animationend', () => {
-        leaf.remove();
+    dust.addEventListener('animationend', () => {
+        dust.remove();
         createParticle(container, colors);
     });
 }
 
-// EFEK CONFETTI BURST
+// =========================================================
+// REVISI: EFEK BURST MAGIC STARDUST
+// =========================================================
 window.triggerConfetti = function(x, y) {
     let container = document.getElementById('confetti-container');
     if(!container) {
@@ -429,27 +427,38 @@ window.triggerConfetti = function(x, y) {
         document.body.appendChild(container);
     }
     
-    const colors = ['#d4af37', '#ffffff', '#FFDAB9'];
+    // Palet warna mewah untuk ledakan partikel
+    const colors = ['#d4af37', '#b59551', '#ffffff', '#fff8e7'];
+    const burstCount = 60; // Jumlah partikel ledakan diperbanyak agar memukau
     
-    for(let i = 0; i < 40; i++) {
-        const confetti = document.createElement('div');
-        confetti.classList.add('confetti');
+    for(let i = 0; i < burstCount; i++) {
+        const spark = document.createElement('div');
+        spark.classList.add('gold-burst');
         
-        confetti.style.left = x + 'px';
-        confetti.style.top = y + 'px';
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        spark.style.left = x + 'px';
+        spark.style.top = y + 'px';
         
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        spark.style.backgroundColor = color;
+        spark.style.boxShadow = `0 0 10px ${color}, 0 0 20px #ffffff`;
+        
+        // Ukuran partikel ledakan
+        const size = Math.random() * 5 + 3;
+        spark.style.width = size + 'px';
+        spark.style.height = size + 'px';
+        
+        // Pola ledakan menyebar 360 derajat
         const angle = Math.random() * Math.PI * 2;
-        const velocity = 50 + Math.random() * 100;
+        const velocity = 80 + Math.random() * 150; // Jarak tembak
         const dx = Math.cos(angle) * velocity + 'px';
         const dy = Math.sin(angle) * velocity + 'px';
         
-        confetti.style.setProperty('--dx', dx);
-        confetti.style.setProperty('--dy', dy);
-        confetti.style.setProperty('--rot', (Math.random() * 360) + 'deg');
+        spark.style.setProperty('--dx', dx);
+        spark.style.setProperty('--dy', dy);
         
-        container.appendChild(confetti);
+        container.appendChild(spark);
         
-        setTimeout(() => confetti.remove(), 1000);
+        // Hapus partikel setelah animasi (1.5 detik)
+        setTimeout(() => spark.remove(), 1500);
     }
 };

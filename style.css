@@ -13,7 +13,7 @@
 }
 
 .dark-mode {
-    --bg-primary: #121212;     /* Warna background Hitam Default */
+    --bg-primary: #121212;     /* Warna Hitam Default */
     --bg-secondary: #1a1a1a;
     --text-main: #e0e0e0;
     --text-muted: #a0a0a0;
@@ -69,18 +69,17 @@ h1, h2, h3, .closing-names, .person h3, .couple-name-large, #guest-name {
 }
 
 /* ======================================================
-REVISI 1: BACKGROUND BERGANTIAN & EFEK CURVE MENEMBUS
-======================================================
-*/
+   SECTION: BACKGROUND BERGANTIAN & EFEK CURVE
+   ====================================================== */
 .section { 
     padding: 5rem 1.5rem; 
-    border-bottom: none; /* Dihilangkan agar curve terlihat menyatu */
+    border-bottom: none; 
     position: relative;
     overflow: hidden;
-    background: var(--bg-primary); /* Default Hitam */
+    background: var(--bg-primary); 
 }
 
-/* Bagian yang diubah menjadi ABU-ABU (Couple, Quran, Gallery, Gift) dengan Curve ke atas */
+/* Curve untuk section bergantian */
 .dark-mode #hero-couple,
 .dark-mode #quran, 
 .dark-mode #gallery, 
@@ -88,13 +87,11 @@ REVISI 1: BACKGROUND BERGANTIAN & EFEK CURVE MENEMBUS
     background: var(--bg-gray);
     position: relative;
     z-index: 10;
-    margin-top: -50px; /* Menarik section abu-abu naik menembus section hitam di atasnya */
+    margin-top: -50px; 
     padding-top: calc(5rem + 50px);
-    /* Membuat bentuk curve / gelombang rapi di bagian atas tanpa merusak HTML */
     border-radius: 50% 50% 0 0 / 50px 50px 0 0; 
     box-shadow: 0 -10px 20px rgba(0,0,0,0.1);
 }
-/* Agar urutan couple ke quran tidak dobel curve, reset quran */
 .dark-mode #quran {
     margin-top: 0;
     padding-top: 5rem;
@@ -134,17 +131,15 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 @keyframes spinDisk { 100% { transform: rotate(360deg); } }
 
 /* ======================================================
-REVISI 2: OVERLAY OPENING DAN HOME (Menyatu Tema)
-======================================================
-*/
+   OVERLAY OPENING DAN HOME (Menyatu Tema)
+   ====================================================== */
 #opening-screen { 
     position: fixed; inset: 0; z-index: 9999; 
-    /* Gradient Hitam Transparan Agar Menyatu Tema */
     background: linear-gradient(rgba(18, 18, 18, 0.6), rgba(18, 18, 18, 0.85)), url(assets/img/ftbg.jpeg) center/cover no-repeat fixed; 
     display: flex; flex-direction: column; justify-content: center; align-items: center; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s; 
 }
 #opening-screen.slide-up { transform: translateY(-100%); opacity: 0; pointer-events: none; }
-.opening-overlay { display: none; /* Dihapus karena sudah pakai gradient di background */ }
+.opening-overlay { display: none; }
 .opening-content { position: relative; z-index: 2; text-align: center; color: #fff; width: 100%; padding: 20px; }
 .opening-title h1 { font-size: 3.5rem; color: #fff; margin-bottom: 25px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
 .guest-info { background: rgba(255,255,255,0.05); backdrop-filter: blur(8px); padding: 25px 20px; border-radius: 20px; margin-bottom: 35px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s; }
@@ -153,12 +148,11 @@ REVISI 2: OVERLAY OPENING DAN HOME (Menyatu Tema)
 
 #hero { 
     height: 100vh; 
-    /* Gradient Hitam Transparan Agar Menyatu Tema */
     background: linear-gradient(to bottom, rgba(18, 18, 18, 0.5) 0%, rgba(18, 18, 18, 0.9) 100%), url(assets/img/hero.jpeg) center/cover no-repeat fixed; 
     position: relative; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 20px; border-bottom: none; 
     opacity: 0; transform: translateY(40px); transition: all 1.2s ease;
 }
-.hero-overlay { display: none; /* Dihapus karena sudah pakai gradient */ }
+.hero-overlay { display: none; }
 .hero-content { position: relative; z-index: 2; max-width: 700px; color: #fff; }
 .subtitle { font-family: 'Playfair Display', serif; font-size: 1rem; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 20px; opacity: 0.9; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
 .couple-name-large { font-size: clamp(3rem, 8vw, 5rem); line-height: 1.2; color: var(--accent); margin-bottom: 1.5rem; font-weight: 600; text-shadow: 0 4px 20px rgba(0,0,0,0.8); }
@@ -237,15 +231,11 @@ REVISI 2: OVERLAY OPENING DAN HOME (Menyatu Tema)
 .btn-copy-atm:hover { background: var(--accent); color: #fff; transform: scale(1.02); }
 .physical-gift-card { border-left: 5px solid var(--accent); }
 
-/* RSVP */
+/* RSVP & CHAT BUBBLE */
 .rsvp-form { background: var(--card-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
 .rsvp-form input, .rsvp-form select, .rsvp-form textarea { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); color: var(--text-main); font-family: inherit; font-size: 1.1rem; transition: border-color 0.3s; }
 .rsvp-form input:focus, .rsvp-form select:focus, .rsvp-form textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(181, 149, 81, 0.1); }
 
-/* ======================================================
-REVISI 3: PEMBATAS CHAT BUBBLES YANG RAPI
-======================================================
-*/
 .chat-bubble { 
     background: var(--card-bg); 
     padding: 20px; 
@@ -253,19 +243,12 @@ REVISI 3: PEMBATAS CHAT BUBBLES YANG RAPI
     margin-bottom: 15px; 
     border: 1px solid var(--border-color);
     border-left: 5px solid var(--accent); 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* Shadow lembut */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
     animation: slideIn 0.5s ease-out; 
     text-align: left;
 }
 @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.chat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px dashed var(--border-color); /* Pembatas info dan teks */
-    padding-bottom: 8px;
-    margin-bottom: 8px;
-}
+.chat-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 8px; }
 .chat-info { display: flex; flex-direction: column; }
 .chat-name { font-weight: 600; font-size: 1.2rem; color: var(--text-main); }
 .chat-time { font-family: sans-serif; font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;}
@@ -303,22 +286,39 @@ REVISI 3: PEMBATAS CHAT BUBBLES YANG RAPI
 .delay-1 { transition-delay: 0.3s; }
 
 /* ======================================================
-REVISI 4: EFEK DAUN JATUH (LEBIH NATURAL)
-======================================================
-*/
+   REVISI: MAGIC STARDUST (PARTIKEL EMAS BOHLAM KECIL)
+   ====================================================== */
 #particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 997; pointer-events: none; overflow: hidden; }
-.leaf { 
+.magic-dust { 
     position: absolute; 
     top: -10%; 
-    opacity: 0.8; 
-    border-radius: 0 50% 0 50%; /* Membentuk Daun */
-    animation: fallLeaf linear forwards; 
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.2); 
+    border-radius: 50%; 
+    background: var(--accent); 
+    box-shadow: 0 0 8px var(--accent), 0 0 15px rgba(255, 255, 255, 0.5); /* Glowing effect */
+    opacity: 0.5; 
+    animation: fallDust linear forwards; 
     will-change: transform;
 }
-@keyframes fallLeaf {
-    /* Animasi daun bergerak sedikit ke kiri & kanan (sway) dan berputar natural */
-    0% { transform: translate3d(0, -10vh, 0) rotate(0deg) scale(0.8); }
-    50% { transform: translate3d(calc(var(--sway-x) / 2), 50vh, 0) rotate(calc(var(--rot) / 2)) scale(1); }
-    100% { transform: translate3d(var(--sway-x), 110vh, 0) rotate(var(--rot)) scale(1.2); }
+@keyframes fallDust {
+    0% { transform: translate3d(0, -10vh, 0) scale(0.5); opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.7; }
+    100% { transform: translate3d(var(--sway-x), 110vh, 0) scale(1); opacity: 0; }
+}
+
+/* ======================================================
+   REVISI: BURST MAGIC STARDUST (SAAT BUKA UNDANGAN)
+   ====================================================== */
+#confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 10000; overflow: hidden;}
+.gold-burst {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent), 0 0 20px #ffffff;
+    animation: burstAnim 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+@keyframes burstAnim {
+    0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
+    80% { opacity: 0.8; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
 }
