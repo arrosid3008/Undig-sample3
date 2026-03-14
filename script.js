@@ -7,7 +7,7 @@ const CONFIG = {
 };
 
 // URL GOOGLE APPS SCRIPT WEB APP 
-const scriptURL = 'URL_WEB_APP_GOOGLE_SCRIPT_DI_SINI';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbw1PBqhELo0eKayaEkpC2wbSu_w-O6T7co9MG9_WrcOJoBGS-ryaHm7esmoyv9madk/exec';
 
 let replyToId = null; 
 
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnSubmitRsvp.disabled = true;
 
             // Fetch Data ke Google Sheets
-            fetch(scriptURL, { method: 'POST', body: new FormData(formGSheet)})
+            fetch(scriptURL, { method: 'POST', body: new FormData(formGSheet), mode: 'no-cors'})
                 .then(response => {
                     // Update Local Storage (Untuk Chat Bubble Real-time)
                     const now = new Date();
