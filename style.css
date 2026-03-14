@@ -246,9 +246,16 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 #hero.hero-active { opacity: 1; transform: translateY(0); }
 
 /* QURAN */
-.bismillah-img { width: 180px; filter: invert(var(--invert-img, 0)); margin-bottom: 25px; opacity: 0.8; }
-.dark-mode .bismillah-img { filter: invert(1); opacity: 0.7; }
+.bismillah-img { width: 180px; margin-bottom: 25px; opacity: 0.85; mix-blend-mode: multiply; }
+.dark-mode .bismillah-img { filter: invert(1); opacity: 0.7; } 
 .arabic { font-family: 'Amiri', serif; font-size: 2.2rem; line-height: 2.2; color: var(--accent); margin-bottom: 20px; }
+/* Memaksa seluruh blok Quran menyatu dengan background web */
+#quran {
+    mix-blend-mode: multiply;
+}
+.dark-mode #quran {
+    mix-blend-mode: screen;
+}
 
 /* COUPLE POLAROID STYLE */
 .couple-wrapper { display: flex; flex-direction: column; gap: 50px; align-items: center; text-align: center; margin-top: 2rem;}
