@@ -8,7 +8,7 @@ const CONFIG = {
 
 // URL GOOGLE APPS SCRIPT WEB APP Anda
 // Pastikan URL ini adalah hasil deploy terbaru dengan fungsi doGet & doPost
-const scriptURL = 'https://script.google.com/macros/s/AKfycbw1PBqhELo0eKayaEkpC2wbSu_w-O6T7co9MG9_WrcOJoBGS-ryaHm7esmoyv9madk/exec';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbyLcfqhHxWlVnwl_xjW1UbdcBVB2gZy7HrxxOGBWuOTZwRyiPig4m_L1WOLmwPZxOg/exec';
 
 let replyToId = null; 
 
