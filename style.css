@@ -32,7 +32,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-    font-family: 'Caveat', cursive;
+    font-family: 'Edu VIC WA NT Beginner', cursive;
     font-size: 1.25rem;
     background-color: var(--bg-primary);
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
@@ -281,9 +281,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .person-img { width: 100%; aspect-ratio: 1; overflow: hidden; margin: 0 auto 15px; border: 1px solid var(--border-color); }
 .person-img img { width: 100%; height: 100%; object-fit: cover; filter: sepia(0.2) contrast(1.1); transition: 0.5s; }
 .person:hover .person-img img { transform: scale(1.05); filter: sepia(0); }
-.person h3 { font-size: 2.5rem; margin-bottom: 5px; font-family: 'Caveat', cursive; }
+.person h3 { font-size: 2.5rem; margin-bottom: 5px; font-family: 'Edu VIC WA NT Beginner', cursive; }
 .ig-link { font-family: sans-serif; font-size: 0.9rem; color: var(--accent); text-decoration: none; display: inline-flex; gap: 5px; margin-top: 10px; padding-bottom: 2px; border-bottom: 1px dashed var(--accent);}
-.and-symbol { font-size: 5rem; font-family: 'Caveat', cursive; color: var(--accent); opacity: 0.6; }
+.and-symbol { font-size: 5rem; font-family: 'Edu VIC WA NT Beginner', cursive; color: var(--accent); opacity: 0.6; }
 
 /* EVENT CARDS - SCRAPBOOK STYLE */
 .event-card { 
@@ -295,7 +295,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     content: ''; position: absolute; inset: 6px; 
     border: 1px dashed var(--border-color); pointer-events: none; 
 }
-.event-card h3 { font-size: 2.8rem; margin-bottom: 20px; font-family: 'Caveat', cursive;}
+.event-card h3 { font-size: 2.8rem; margin-bottom: 20px; font-family: 'Edu VIC WA NT Beginner', cursive;}
 .event-card p { font-size: 1.3rem; margin-bottom: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 10px; }
 
 /* COUNTDOWN (Dipindah ke Hero) */
@@ -306,7 +306,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     position: relative;
 }
 .time-box span { display: block; font-size: 1.8rem; font-family: 'Playfair Display', serif; color: var(--text-main); line-height: 1; margin-bottom: 5px; }
-.time-box small { font-size: 1rem; font-family: 'Caveat', cursive; color: var(--accent); }
+.time-box small { font-size: 1rem; font-family: 'Edu VIC WA NT Beginner', cursive; color: var(--accent); }
 
 .cal-buttons { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .btn-cal { font-family: sans-serif; background: var(--bg-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: 30px; text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
@@ -368,7 +368,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
 /* FOOTER */
 .site-footer { background: var(--bg-secondary); text-align: center; padding: 4rem 1.5rem 6rem; border-top: 1px dashed var(--border-color); }
-.site-footer h3 { font-size: 2.5rem; font-family: 'Caveat', cursive; color: var(--text-main); }
+.site-footer h3 { font-size: 2.5rem; font-family: 'Edu VIC WA NT Beginner', cursive; color: var(--text-main); }
 .footer-msg { font-size: 1.4rem; color: var(--accent); margin-top: 10px; }
 
 /* BOTTOM NAV */
