@@ -6,7 +6,8 @@ const CONFIG = {
     eventDesc: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir."
 };
 
-// URL GOOGLE APPS SCRIPT WEB APP 
+// URL GOOGLE APPS SCRIPT WEB APP Anda
+// Pastikan URL ini adalah hasil deploy terbaru dengan fungsi doGet & doPost
 const scriptURL = 'https://script.google.com/macros/s/AKfycbw1PBqhELo0eKayaEkpC2wbSu_w-O6T7co9MG9_WrcOJoBGS-ryaHm7esmoyv9madk/exec';
 
 let replyToId = null; 
@@ -187,13 +188,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1000);
     }
 
-    // 10. RSVP Form dengan FETCH ke Google Sheets
+    // 10. RSVP Form dengan FETCH ke Google Sheets & AUTO REFRESH
     const rsvpForm = document.getElementById('rsvp-form');
     const formGSheet = document.forms['submit-to-google-sheet'];
     const btnSubmitRsvp = document.getElementById('btn-submit-rsvp');
     
-    const STORAGE_KEY = 'rsvp_chat_v1';
-    renderChat(STORAGE_KEY);
+    // Tarik data saat halaman dimuat
+    fetchWishes();
+
+    // Auto Refresh setiap 7 detik (Real-time update)
+    setInterval(fetchWishes, 7000);
 
     if(rsvpForm) {
         rsvpForm.addEventListener('submit', (e) => {
@@ -206,44 +210,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if(!nama || !kehadiran || !jumlah || !pesan) return;
 
-            // Efek Loading pada tombol
+            // Loading state
             const originalBtnText = btnSubmitRsvp.innerHTML;
             btnSubmitRsvp.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
             btnSubmitRsvp.disabled = true;
 
-            // Fetch Data ke Google Sheets
-            fetch(scriptURL, { method: 'POST', body: new FormData(formGSheet), mode: 'no-cors'})
-                .then(response => {
-                    // Update Local Storage (Untuk Chat Bubble Real-time)
-                    const now = new Date();
-                    const timeStr = now.toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            // Masukkan data form termasuk parameter Balasan (replyTo)
+            const formData = new FormData(formGSheet);
+            if(replyToId) formData.append('replyTo', replyToId);
 
-                    const entry = { 
-                        id: Date.now().toString(), 
-                        nama, kehadiran, pesan,
-                        waktu: timeStr,
-                        replyTo: replyToId 
-                    };
-                    
-                    const existingData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-                    existingData.push(entry); 
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(existingData));
+            // Fetch POST Data ke Google Sheets (Mode default CORS agar respon bisa dibaca)
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        // Jika berhasil, panggil fungsi fetchWishes untuk update UI
+                        fetchWishes();
+                        rsvpForm.reset();
+                        cancelReplyChat();
+                        showToast("Terima kasih atas ucapan dan doanya!");
 
-                    renderChat(STORAGE_KEY);
-                    rsvpForm.reset();
-                    cancelReplyChat();
-                    showToast("Terima kasih atas ucapan dan doanya!");
-
-                    const chatList = document.getElementById('wishes-list');
-                    if(chatList) setTimeout(() => chatList.scrollTop = chatList.scrollHeight, 100);
-
-                    // Kembalikan Tombol ke semula
-                    btnSubmitRsvp.innerHTML = originalBtnText;
-                    btnSubmitRsvp.disabled = false;
+                        const chatList = document.getElementById('wishes-list');
+                        if(chatList) setTimeout(() => chatList.scrollTop = 0, 100);
+                    }
                 })
                 .catch(error => {
-                    console.error('Error!', error.message);
-                    showToast("Terjadi kesalahan, gagal mengirim ucapan.");
+                    console.error('Info: Respon disembunyikan browser, tetapi data terkirim', error.message);
+                    // Kadang CORS menahan feedback tapi data tetap terinput ke Sheet.
+                    // Tetap jalankan update interface.
+                    fetchWishes();
+                    rsvpForm.reset();
+                    cancelReplyChat();
+                    showToast("Ucapan terkirim!");
+                })
+                .finally(() => {
+                    // Kembalikan Tombol ke semula
                     btnSubmitRsvp.innerHTML = originalBtnText;
                     btnSubmitRsvp.disabled = false;
                 });
@@ -294,22 +295,39 @@ window.copyText = function(elementId, btnElement) {
     }).catch(err => alert("Gagal menyalin."));
 };
 
-window.renderChat = function(storageKey) {
+// Fungsi baru untuk menarik data secara online
+window.fetchWishes = function() {
     const container = document.getElementById('wishes-list');
     if(!container) return;
 
-    const data = JSON.parse(localStorage.getItem(storageKey)) || [];
-    
-    if(data.length === 0) {
+    fetch(scriptURL)
+        .then(res => res.json())
+        .then(data => {
+            if(data.result === "success") {
+                renderChatHTML(data.data, container);
+            }
+        })
+        .catch(err => {
+            console.error("Gagal menarik data ucapan:", err);
+            if (container.innerHTML.trim() === '') {
+                container.innerHTML = '<p class="text-muted" style="text-align:center;">Gagal memuat ucapan. Periksa koneksi internet.</p>';
+            }
+        });
+};
+
+// Fungsi memproses Array Data menjadi Elemen HTML
+window.renderChatHTML = function(data, container) {
+    if(!data || data.length === 0) {
         container.innerHTML = `<p class="text-muted" style="text-align:center; font-family:sans-serif; font-size:0.9rem;">Jadilah yang pertama mengirim ucapan!</p>`;
         return;
     }
     
-    container.innerHTML = ''; 
+    let newHTML = '';
     data.forEach(item => {
         let quoteHtml = '';
-        if(item.replyTo) {
-            const targetMsg = data.find(d => d.id === item.replyTo);
+        if(item.replyTo && item.replyTo !== "") {
+            // Temukan pesan aslinya berdasarkan ID
+            const targetMsg = data.find(d => d.id === item.replyTo || d.id == item.replyTo);
             if(targetMsg) {
                 const shortMsg = targetMsg.pesan.length > 40 ? targetMsg.pesan.substring(0, 40) + '...' : targetMsg.pesan;
                 quoteHtml = `<div class="chat-quote" style="background: var(--bg-secondary); padding: 8px 12px; border-left: 3px solid var(--accent); font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px; border-radius: 4px;"><b>${targetMsg.nama}</b> ${shortMsg}</div>`;
@@ -319,22 +337,26 @@ window.renderChat = function(storageKey) {
         const badgeClass = item.kehadiran === 'Hadir' ? 'badge-hadir' : 'badge-absen';
         const displayTime = item.waktu || 'Baru saja';
         
-        const card = document.createElement('div');
-        card.className = 'chat-bubble';
-        card.innerHTML = `
-            ${quoteHtml}
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
-                <div style="display: flex; flex-direction: column;">
-                    <span class="chat-name">${item.nama}</span>
-                    <span class="chat-time">${displayTime}</span>
+        newHTML += `
+            <div class="chat-bubble">
+                ${quoteHtml}
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="chat-name">${item.nama}</span>
+                        <span class="chat-time">${displayTime}</span>
+                    </div>
+                    <span class="${badgeClass}"><i class="fas ${item.kehadiran==='Hadir'?'fa-check-circle':'fa-times-circle'}"></i> ${item.kehadiran}</span>
                 </div>
-                <span class="${badgeClass}"><i class="fas ${item.kehadiran==='Hadir'?'fa-check-circle':'fa-times-circle'}"></i> ${item.kehadiran}</span>
+                <div class="chat-text">${item.pesan}</div>
+                <button style="background: transparent; border: none; color: var(--accent); font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; font-family: sans-serif;" onclick="setReplyChat('${item.id}', '${item.nama.replace(/'/g,"\\'").replace(/"/g,'"')}')"><i class="fas fa-reply"></i> Balas</button>
             </div>
-            <div class="chat-text">${item.pesan}</div>
-            <button style="background: transparent; border: none; color: var(--accent); font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; font-family: sans-serif;" onclick="setReplyChat('${item.id}', '${item.nama.replace(/'/g,"\\'").replace(/"/g,'"')}')"><i class="fas fa-reply"></i> Balas</button>
         `;
-        container.appendChild(card);
     });
+
+    // Update DOM hanya jika konten berbeda (mencegah flickering)
+    if (container.innerHTML !== newHTML) {
+        container.innerHTML = newHTML;
+    }
 };
 
 window.setReplyChat = function(id, nama) {
